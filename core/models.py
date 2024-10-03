@@ -39,7 +39,11 @@ class Question(models.Model):
     current_retention_rate = models.FloatField(null=True, blank=True)
     feynman = models.TextField(blank=True)
     average_time = models.FloatField(null=True, blank=True)
+    ratings = models.JSONField(default=list, blank=True)
+    solving_time = models.JSONField(default=list, blank=True)
 
+    def __str__(self):
+        return self.text
 
 
 class ReviewSession(models.Model):

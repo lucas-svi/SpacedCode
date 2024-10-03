@@ -1,18 +1,84 @@
 # SpacedCode/core/views.py
-
+from django.db import models
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Question, ReviewSession
 from .utils import FSRS, calculate_average_time
-from .forms import ReviewForm
+from .forms import ReviewForm, UserRegisterForm, QuestionForm
 from datetime import datetime, timedelta, timezone
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f'Account created for {user.username}! You can now log in.')
+            return redirect('login')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'core/register.html', {'form': form})
+
+@login_required
+def dashboard(request):
+    user = request.user
+    total_questions = Question.objects.filter(user=user).count()
+    pending_reviews = Question.objects.filter(user=user, next_review__lte=datetime.today()).count()
+    return render(request, 'core/dashboard.html', {
+        'total_questions': total_questions,
+        'pending_reviews': pending_reviews,
+    })
+
+@login_required
+def add_question(request):
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.user = request.user
+            question.save()
+            form.save_m2m()
+            messages.success(request, 'Question added successfully!')
+            return redirect('dashboard')
+    else:
+        form = QuestionForm()
+    return render(request, 'core/add_question.html', {'form': form})
+
+@login_required
+def edit_question(request, pk):
+    question = get_object_or_404(Question, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = QuestionForm(request.POST, instance=question)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Question updated successfully!')
+            return redirect('dashboard')
+    else:
+        form = QuestionForm(instance=question)
+    return render(request, 'core/edit_question.html', {'form': form, 'question': question})
+
+
+@login_required
+def delete_question(request, pk):
+    question = get_object_or_404(Question, pk=pk, user=request.user)
+    if request.method == 'POST':
+        question.delete()
+        messages.success(request, 'Question deleted successfully!')
+        return redirect('dashboard')
+    return render(request, 'core/delete_question.html', {'question': question})
+
+@login_required
+def review_list(request):
+    user = request.user
+    questions = Question.objects.filter(user=user, next_review__lte=datetime.today())
+    return render(request, 'core/review_list.html', {'questions': questions})
+
 
 @login_required
 def review_question(request, pk):
     question = get_object_or_404(Question, pk=pk, user=request.user)
     fsrs = FSRS()
-
     if request.method == 'POST':
         form = ReviewForm(request.POST)
         if form.is_valid():
@@ -76,3 +142,24 @@ def update_question_metrics(fsrs, question, rating):
     question.stability = new_stability
     question.difficulty = new_difficulty
     question.next_review = next_review
+
+
+
+
+@login_required
+def statistics(request):
+    user = request.user
+    total_questions = Question.objects.filter(user=user).count()
+    reviewed_questions = Question.objects.filter(user=user, last_reviewed__isnull=False).count()
+    pending_reviews = Question.objects.filter(user=user, next_review__lte=datetime.today()).count()
+    average_difficulty = Question.objects.filter(user=user).aggregate(models.Avg('difficulty'))['difficulty__avg'] or 0
+    average_solving_time = Question.objects.filter(user=user).aggregate(models.Avg('average_time'))['average_time__avg'] or 0
+    
+    context = {
+        'total_questions': total_questions,
+        'reviewed_questions': reviewed_questions,
+        'pending_reviews': pending_reviews,
+        'average_difficulty': round(average_difficulty, 2),
+        'average_solving_time': round(average_solving_time, 2),
+    }
+    return render(request, 'core/statistics.html', context)

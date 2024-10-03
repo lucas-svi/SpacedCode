@@ -1,6 +1,9 @@
 # SpacedCode/core/forms.py
 
 from django import forms
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+from .models import Question
 
 class ReviewForm(forms.Form):
     rating = forms.IntegerField(
@@ -19,3 +22,18 @@ class ReviewForm(forms.Form):
         widget=forms.NumberInput(attrs={'placeholder': 'Time taken (minutes)'}),
         label="Time taken to solve (in minutes)"
     )
+
+class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
+
+class QuestionForm(forms.ModelForm):
+    class Meta:
+        model = Question
+        fields = ['text', 'link', 'problem_type', 'company_tags']
+        widgets = {
+            'company_tags': forms.CheckboxSelectMultiple(),
+        }

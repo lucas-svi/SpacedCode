@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'core',
+    'crispy_forms', #if we gonna use crispy
+    'crispy_bootstrap5', #if using bootstrap 5 w/ crispy forms
 ]
 
 MIDDLEWARE = [
@@ -56,7 +58,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "SpacedCode.urls"
+ROOT_URLCONF = "spaced_code.urls"
 
 TEMPLATES = [
     {
@@ -74,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "SpacedCode.wsgi.application"
+WSGI_APPLICATION = "spaced_code.wsgi.application"
 
 
 # Database
