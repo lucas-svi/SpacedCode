@@ -32,3 +32,9 @@ class FSRS:
 
     def mean_reversion(self, init, current):
         return self.w[7] * init + (1 - self.w[7]) * current
+    
+
+def calculate_average_time(question, solving_time):
+    if question.average_time:
+        return (question.average_time + solving_time) / 2
+    return solving_time

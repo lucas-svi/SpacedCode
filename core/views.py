@@ -3,11 +3,12 @@ from django.db import models
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.views import LogoutView, LoginView
 from .models import Question, ReviewSession
 from .utils import FSRS, calculate_average_time
 from .forms import ReviewForm, UserRegisterForm, QuestionForm
 from datetime import datetime, timedelta, timezone
-
+from django.urls import reverse_lazy
 
 def register(request):
     if request.method == 'POST':
@@ -18,7 +19,24 @@ def register(request):
             return redirect('login')
     else:
         form = UserRegisterForm()
-    return render(request, 'core/register.html', {'form': form})
+    return render(request, 'registration/register.html', {'form': form})
+
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+    redirect_authenticated_user = True
+
+    def form_valid(self, form):
+        messages.success(self.request, f'Welcome back, {form.get_user().username}!')
+        return super().form_valid(form)
+
+
+class CustomLogoutView(LogoutView):
+    next_page = reverse_lazy('dashboard')  # Redirect to dashboard after logout
+
+    def dispatch(self, request, *args, **kwargs):
+        messages.info(request, "You have been logged out successfully.")
+        return super().dispatch(request, *args, **kwargs)
+
 
 @login_required
 def dashboard(request):
