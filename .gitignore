@@ -1,0 +1,23 @@
+# .gitignore
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+venv/
+env/
+ENV/
+.env
+
+*.log
+*.pot
+*.pyc
+__pycache__/
+db.sqlite3
+
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+.DS_Store
