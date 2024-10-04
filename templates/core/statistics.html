@@ -1,0 +1,32 @@
+{% extends "core/base_generic.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Your Statistics</h2>
+    <table class="table table-bordered mt-4">
+        <tbody>
+            <tr>
+                <th>Total Questions</th>
+                <td>{{ total_questions }}</td>
+            </tr>
+            <tr>
+                <th>Questions Reviewed</th>
+                <td>{{ reviewed_questions }}</td>
+            </tr>
+            <tr>
+                <th>Pending Reviews</th>
+                <td>{{ pending_reviews }}</td>
+            </tr>
+            <tr>
+                <th>Average Difficulty</th>
+                <td>{{ average_difficulty }}</td>
+            </tr>
+            <tr>
+                <th>Average Solving Time (seconds)</th>
+                <td>{{ average_solving_time }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <a href="{% url 'dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
+</div>
+{% endblock %}

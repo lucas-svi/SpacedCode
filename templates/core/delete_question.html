@@ -1,0 +1,16 @@
+{% extends "core/base_generic.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Delete Question</h2>
+    <p>Are you sure you want to delete the following question?</p>
+    <blockquote class="blockquote">
+        {{ question.text|linebreaks }}
+    </blockquote>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -25,13 +25,16 @@ class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
     redirect_authenticated_user = True
 
+    def get_success_url(self):
+        return reverse_lazy('dashboard')  # Redirect to 'dashboard' after login
+
     def form_valid(self, form):
         messages.success(self.request, f'Welcome back, {form.get_user().username}!')
         return super().form_valid(form)
 
 
 class CustomLogoutView(LogoutView):
-    next_page = reverse_lazy('dashboard')  # Redirect to dashboard after logout
+    next_page = reverse_lazy('dashboard')  # Redirect to 'dashboard' after logout
 
     def dispatch(self, request, *args, **kwargs):
         messages.info(request, "You have been logged out successfully.")
@@ -41,11 +44,17 @@ class CustomLogoutView(LogoutView):
 @login_required
 def dashboard(request):
     user = request.user
+    today = datetime.today().date()
     total_questions = Question.objects.filter(user=user).count()
-    pending_reviews = Question.objects.filter(user=user, next_review__lte=datetime.today()).count()
+    pending_reviews = Question.objects.filter(user=user, next_review__lte=today)
+    pending_count = pending_reviews.count()
+    all_questions = Question.objects.filter(user=user)
+
     return render(request, 'core/dashboard.html', {
         'total_questions': total_questions,
-        'pending_reviews': pending_reviews,
+        'pending_reviews': pending_reviews, 
+        'pending_count': pending_count,  
+        'all_questions': all_questions,
     })
 
 @login_required
@@ -169,10 +178,10 @@ def statistics(request):
     user = request.user
     total_questions = Question.objects.filter(user=user).count()
     reviewed_questions = Question.objects.filter(user=user, last_reviewed__isnull=False).count()
-    pending_reviews = Question.objects.filter(user=user, next_review__lte=datetime.today()).count()
+    pending_reviews = Question.objects.filter(user=user, next_review__lte=datetime.today().date()).count()
     average_difficulty = Question.objects.filter(user=user).aggregate(models.Avg('difficulty'))['difficulty__avg'] or 0
     average_solving_time = Question.objects.filter(user=user).aggregate(models.Avg('average_time'))['average_time__avg'] or 0
-    
+
     context = {
         'total_questions': total_questions,
         'reviewed_questions': reviewed_questions,

@@ -1,12 +1,12 @@
-<!-- templates/core/base_generic.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SpacedCode</title>
+    <title>{% block title %}SpacedCode{% endblock %}</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     {% load static %}
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
@@ -19,28 +19,35 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    {% if user.is_authenticated %}
+                {% if user.is_authenticated %}
+                    <ul class="navbar-nav ms-auto align-items-center">
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <form method="post" action="{% url 'logout' %}" style="display: inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="nav-link btn btn-link" style="display: inline; padding: 0; margin: 0; border: none; background: none;">
-                                    Logout
-                                </button>
-                            </form>
+                            <a class="nav-link" href="{% url 'add_question' %}">Add Question</a>
                         </li>
-                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'statistics' %}">Statistics</a>
+                        </li>
+                    </ul>
+                    <!-- Logout form outside the <ul> -->
+                    <form method="post" action="{% url 'logout' %}" class="d-flex align-items-center ms-3">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link nav-link m-0 p-0" style="border: none; background: none;">
+                            Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'login' %}">Login</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'register' %}">Register</a>
                         </li>
-                    {% endif %}
-                </ul>
+                    </ul>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -63,7 +70,9 @@
         {% endblock %}
     </div>
 
-    <!-- Bootstrap JS (Optional) -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS (if any) -->
+    <script src="{% static 'js/scripts.js' %}"></script>
 </body>
 </html>

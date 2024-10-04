@@ -33,7 +33,8 @@ class UserRegisterForm(UserCreationForm):
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ['text', 'link', 'problem_type', 'company_tags']
+        fields = ['text', 'link', 'problem_type', 'company_tags', 'next_review', 'difficulty']
         widgets = {
             'company_tags': forms.CheckboxSelectMultiple(),
+            'next_review': forms.DateInput(attrs={'type': 'date'}),
         }
