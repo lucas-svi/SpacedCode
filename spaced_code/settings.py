@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_select2",
     'crispy_forms', #if we gonna use crispy
     'crispy_bootstrap5', #if using bootstrap 5 w/ crispy forms
     'core',

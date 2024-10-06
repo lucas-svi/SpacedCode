@@ -3,7 +3,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Question
+from .models import Question, CompanyTag, PROBLEM_TYPE_CHOICES
+from django_select2.forms import Select2TagWidget
 
 class ReviewForm(forms.Form):
     rating = forms.IntegerField(
@@ -30,11 +31,29 @@ class UserRegisterForm(UserCreationForm):
         model = User
         fields = ['username', 'email', 'password1', 'password2']
 
+
 class QuestionForm(forms.ModelForm):
+    company_tags = forms.ModelMultipleChoiceField(
+        queryset=CompanyTag.objects.all(),
+        required=False,
+        widget=Select2TagWidget(
+            attrs={
+                'class': 'select2-tag',
+                'data-placeholder': 'Type in a company and press enter',
+                'style': 'width: 100%;',
+            }
+        )
+    )
+
     class Meta:
         model = Question
-        fields = ['text', 'link', 'problem_type', 'company_tags', 'next_review', 'difficulty']
+        fields = ['text', 'link', 'problem_type', 'company_tags']
         widgets = {
-            'company_tags': forms.CheckboxSelectMultiple(),
-            'next_review': forms.DateInput(attrs={'type': 'date'}),
+            'problem_type': forms.Select(choices=PROBLEM_TYPE_CHOICES),
         }
+
+    def clean_company_tags(self):
+        tags = self.cleaned_data['company_tags']
+        for tag in tags:
+            CompanyTag.objects.get_or_create(name=tag.name)
+        return tags
