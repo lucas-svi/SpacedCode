@@ -5,6 +5,9 @@
 <div class="container mt-5">
     <h2>Review Question</h2>
     <p>{{ question.text|linebreaks }}</p>
+    <p>{{ question.problem_type|linebreaks }}</p>
+    <p>{{ question.stability }}</p>
+    <p>{{ question.difficulty }}</p>
     <form method="post">
         {% csrf_token %}
         {{ form|crispy }}

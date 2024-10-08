@@ -59,7 +59,7 @@ class Question(models.Model):
     next_review = models.DateField()
     interval = models.IntegerField(default=1)
     stability = models.FloatField(default=0.5)
-    difficulty = models.IntegerField(default=5)
+    difficulty = models.FloatField(default=5)
     retention_factor = models.FloatField(default=0.8)
     current_retention_rate = models.FloatField(default=0.5)
     feynman = models.TextField(blank=True, null=True)

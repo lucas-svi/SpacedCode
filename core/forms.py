@@ -4,7 +4,6 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Question, CompanyTag, PROBLEM_TYPE_CHOICES
-from django_select2.forms import Select2TagWidget
 
 class ReviewForm(forms.Form):
     rating = forms.IntegerField(
@@ -33,27 +32,40 @@ class UserRegisterForm(UserCreationForm):
 
 
 class QuestionForm(forms.ModelForm):
-    company_tags = forms.ModelMultipleChoiceField(
-        queryset=CompanyTag.objects.all(),
+    company_tags = forms.CharField(
         required=False,
-        widget=Select2TagWidget(
-            attrs={
-                'class': 'select2-tag',
-                'data-placeholder': 'Type in a company and press enter',
-                'style': 'width: 100%;',
-            }
-        )
+        widget=forms.TextInput(attrs={
+            'class': 'form-control select2-tag',
+            'style': 'width: 100%;',
+            'placeholder': 'Type in a company and press enter',
+        })
+    )
+    link = forms.URLField(
+        required=True
     )
 
     class Meta:
         model = Question
         fields = ['text', 'link', 'problem_type', 'company_tags']
+        
         widgets = {
             'problem_type': forms.Select(choices=PROBLEM_TYPE_CHOICES),
         }
+        
 
     def clean_company_tags(self):
-        tags = self.cleaned_data['company_tags']
-        for tag in tags:
-            CompanyTag.objects.get_or_create(name=tag.name)
+        tags_str = self.cleaned_data.get('company_tags', '')
+        tag_names = [name.strip() for name in tags_str.split(',') if name.strip()]
+        tags = []
+        for name in tag_names:
+            tag, created = CompanyTag.objects.get_or_create(name=name)
+            tags.append(tag)
+        self.cleaned_data['company_tags'] = tags
         return tags
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+            instance.company_tags.set(self.cleaned_data['company_tags'])
+        return instance

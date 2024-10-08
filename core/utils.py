@@ -1,6 +1,9 @@
 # SpacedCode/core/utils.py
 
 import math
+from datetime import datetime
+from django.utils import timezone
+import json
 
 class FSRS:
     def __init__(self, w=None):
@@ -19,22 +22,36 @@ class FSRS:
 
     def next_difficulty(self, difficulty, rating):
         next_d = difficulty - self.w[6] * (rating - 3)
-        return min(max(self.mean_reversion(5.0, next_d), 1), 10)
+        return round_num(min(max(self.mean_reversion(5.0, next_d), 1), 10),3)
 
     def next_recall_stability(self, difficulty, stability, retrievability, rating):
-        return stability * (
+        stability *= ((
             1
             + math.exp(self.w[8])
             * (11 - difficulty)
             * math.pow(stability, -self.w[9])
             * (math.exp((1 - retrievability) * self.w[10]) - 1)
-        ) * (self.w[15] if rating == 2 else 1)
+        ) * (self.w[15] if rating == 2 else 1))
+        return round_num(stability, 3)
 
     def mean_reversion(self, init, current):
         return self.w[7] * init + (1 - self.w[7]) * current
     
+def calculate_average_time(average_time, new_time):
+    if average_time == 0 or average_time is None:
+        times = []
+    else:
+        times = json.loads(json.dumps(average_time))
 
-def calculate_average_time(question, solving_time):
-    if question.average_time:
-        return (question.average_time + solving_time) / 2
-    return solving_time
+    times.append({
+        'date': str(timezone.now().date()),
+        'time_taken': new_time,
+    })
+
+    total_time = sum(entry['time_taken'] for entry in times)
+    average = total_time / len(times)
+
+    return average
+
+def round_num(n, p):
+    return math.floor(n * (10**p))/10**p
