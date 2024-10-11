@@ -87,7 +87,8 @@
                     <td>{{ question.difficulty }}</td>
                     <td>
                             <!-- need to make it so that go automatically opens question and starts review for u -->
-                        <a href="{{ question.link }}" class="btn btn-success btn-sm">Go</a>
+                       <!-- Update the "Go" button to include an ID and a data attribute for the review URL -->
+                        <a href="{{ question.link }}" class="btn btn-success btn-sm go-btn" data-review-url="{% url 'review_question' question.pk %}" target="_blank">Go</a>
                         <a href="{% url 'review_question' question.pk %}" class="btn btn-primary btn-sm">Review</a>
                         <a href="{% url 'edit_question' question.pk %}" class="btn btn-secondary btn-sm">Edit</a>
                         <a href="{% url 'delete_question' question.pk %}" class="btn btn-danger btn-sm">Delete</a>

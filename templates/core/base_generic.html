@@ -89,6 +89,17 @@
         });
     </script>    
     {% block extra_js %}
+
+    <script>
+        document.querySelectorAll('.go-btn').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                window.open(this.href, '_blank');
+                window.location.href = this.getAttribute('data-review-url');
+            });
+        });
+    </script>
+
     {% endblock %}
 </body>
 </html>
